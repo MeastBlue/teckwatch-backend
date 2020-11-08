@@ -1,0 +1,82 @@
+scalar Date
+
+enum Prio {
+  NONE
+  HIGH
+  MEDIUM
+  LOW
+}
+
+type User {
+  id: ID!
+  lastname: String!
+  firstname: String!
+  surname: String!
+  avatar: String!
+  email: String!
+  password: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type Tech {
+  id: ID!
+  label: String!
+  description: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type Task {
+  id: ID!
+  label: String!
+  prio: Prio!
+  progress: Int!
+  done: Boolean!
+  user: User
+  tech: Tech
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type Query {
+  tasks: [Task!]!
+  users: [User!]!
+  techs: [Tech!]!
+}
+
+input NewTask {
+  label: String!
+  userId: String!
+  techId: String!
+}
+
+input NewUser {
+  lastname: String!
+  firstname: String!
+  surname: String!
+  email: String!
+  password: String!
+}
+
+input NewTech {
+  label: String!
+  description: String!
+}
+
+input RefreshTokenInput{
+  token: String!
+}
+
+input Login {
+  username: String!
+  password: String!
+}
+
+type Mutation {
+  createTask(input: NewTask!): Task!
+  createUser(input: NewUser): User!
+  createTech(input: NewTech): Tech!
+  login(input: Login!): String!
+  refreshToken(input: RefreshTokenInput!): String!
+}
