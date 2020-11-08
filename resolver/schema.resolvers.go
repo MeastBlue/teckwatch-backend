@@ -6,9 +6,9 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/meastblue/teckwatch/generated"
+	"github.com/meastblue/teckwatch/internal"
 	"github.com/meastblue/teckwatch/model"
 )
 
@@ -24,10 +24,8 @@ func (r *mutationResolver) CreateTech(ctx context.Context, input *model.NewTech)
 	tech := model.Tech{
 		Label:       input.Label,
 		Description: input.Description,
-		CreatedAt:   time.Now().String(),
-		UpdatedAt:   time.Now().String(),
 	}
-
+	internal.CreateTech(tech)
 	return &tech, nil
 }
 
@@ -49,14 +47,18 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 
 func (r *queryResolver) Techs(ctx context.Context) ([]*model.Tech, error) {
 	techs := []*model.Tech{}
-	dummuyTech := model.Tech{
-		Label:       "GraphQL",
-		Description: "A better Rest",
-		CreatedAt:   time.Now().String(),
-		UpdatedAt:   time.Now().String(),
+	dbTechs := internal.GetTechList()
+
+	for _, tech := range dbTechs {
+		techs = append(techs, &model.Tech{
+			ID:          tech.ID,
+			Label:       tech.Label,
+			Description: tech.Description,
+			CreatedAt:   tech.CreatedAt,
+			UpdatedAt:   tech.UpdatedAt,
+		})
 	}
 
-	techs = append(techs, &dummuyTech)
 	return techs, nil
 }
 

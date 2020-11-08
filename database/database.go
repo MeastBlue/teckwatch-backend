@@ -6,35 +6,22 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/meastblue/teckwatch/config"
 )
 
-type Config struct {
-	Host string
-	Port string
-	Name string
-	User string
-	Pass string
-}
+func New() (*sqlx.DB, error) {
+	conf, err := config.InitConfig()
+	if err != nil {
+		return nil, err
+	}
 
-type DB struct {
-	*sqlx.DB
-}
-
-func New(host, port, name, user, pass string) (*DB, error) {
-	if host == "" || port == "" || name == "" || user == "" || pass == "" {
+	dbc := conf.GetDatabaseConf()
+	if dbc.Host == "" || dbc.Port == "" || dbc.Name == "" || dbc.User == "" || dbc.Pass == "" {
 		err := errors.New("One of database info is empty")
 		return nil, err
 	}
 
-	config := Config{
-		Host: host,
-		Port: port,
-		Name: name,
-		User: user,
-		Pass: pass,
-	}
-
-	db, err := config.init()
+	db, err := connectDatabase(dbc)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +29,7 @@ func New(host, port, name, user, pass string) (*DB, error) {
 	return db, nil
 }
 
-func (c *Config) init() (*DB, error) {
+func connectDatabase(c *config.Database) (*sqlx.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		c.Host, c.Port, c.User,
 		c.Pass, c.Name)
@@ -50,6 +37,6 @@ func (c *Config) init() (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	
-	return &DB{db}, nil
+
+	return db, nil
 }
